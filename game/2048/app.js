@@ -6,6 +6,9 @@ var bestScoreDisplay
 var resultDisplay
 var squares = []
 
+var MEMO1 = new Array(16), memoScore1 = 0, memoBest1 = 0
+var MEMO2 = new Array(16), memoScore2 = 0, memoBest2 = 0
+
 var changeStatus = false
 var score = 0
 var best = 0
@@ -167,6 +170,7 @@ function combineDown() {
 
 //assign functions to keyCodes
 function control(e) {
+  saveMemoStage1()
   changeStatus = false
   if(e.keyCode === 37) { // left
     moveLeft()
@@ -188,7 +192,8 @@ function control(e) {
 
   if (changeStatus){
     generate()
-  } 
+    saveMemoStage2()
+  }
 }
 
 //check for the number 2048 in the squares to win
@@ -228,6 +233,32 @@ function resetGame() {
   scoreDisplay.innerHTML = score
   
   createBoard()
+}
+
+//undo one step
+function undo() {
+  for(let i = 0; i < 16; i++) {
+    squares[i].innerHTML = MEMO2[i]
+  }
+  updateColor()
+  score = memoScore2
+  best = memoBest2
+  scoreDisplay.innerHTML = score
+  bestScoreDisplay.innerHTML = best
+}
+function saveMemoStage1() {
+  for(let i = 0; i < 16; i++) {
+    MEMO1[i] = squares[i].innerHTML
+  }
+  memoScore1 = score
+  memoBest1 = best
+}
+function saveMemoStage2() {
+  for(let i = 0; i < 16; i++) {
+    MEMO2[i] = MEMO1[i]
+  }
+  memoScore2 = memoScore1
+  memoBest2 = memoBest1
 }
 
 // ====== Main Logic ======
