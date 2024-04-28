@@ -2,11 +2,13 @@ const width = 4
 
 var gridDisplay
 var scoreDisplay
+var bestScoreDisplay
 var resultDisplay
 var squares = []
 
 var changeStatus = false
 var score = 0
+var best = 0
 
 var leftEvent = new KeyboardEvent("keyup", {keyCode: 37});
 var upEvent = new KeyboardEvent("keyup", {keyCode: 38});
@@ -110,7 +112,9 @@ function combineRow() {
       let sum = parseInt(squares[i].innerHTML) + parseInt(squares[i+1].innerHTML);
       [squares[i].innerHTML, squares[i+1].innerHTML] = [sum, 0]
       score += sum
+      best = Math.max(best, score)
       scoreDisplay.innerHTML = score
+      bestScoreDisplay.innerHTML = best
       changeStatus = true
     }
   }
@@ -123,7 +127,9 @@ function combineColumn() {
       let sum = parseInt(squares[i].innerHTML) + parseInt(squares[i+width].innerHTML);
       [squares[i].innerHTML, squares[i+width].innerHTML] = [sum, 0]
       score += sum
+      best = Math.max(best, score)
       scoreDisplay.innerHTML = score
+      bestScoreDisplay.innerHTML = best
       changeStatus = true
     }
   }
@@ -187,6 +193,7 @@ function autoplay(sec = 5) {
 document.addEventListener('DOMContentLoaded', () =>  {
   gridDisplay = document.querySelector('.grid')
   scoreDisplay = document.getElementById('score')
+  bestScoreDisplay = document.getElementById('best')
   resultDisplay = document.getElementById('result')
 
   createBoard()
