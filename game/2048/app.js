@@ -105,7 +105,7 @@ function moveDown() {
   }
 }
 
-function combineRow() {
+function combineLeft() {
   for (let i = 0; i < squares.length; i++) {
     if (i % 4 == 3) continue;
     if (squares[i].innerHTML === squares[i+1].innerHTML) {
@@ -120,7 +120,22 @@ function combineRow() {
   }
 }
 
-function combineColumn() {
+function combineRight() {
+  for (let i = squares.length - 1; i >= 0; i--) {
+    if (i % 4 == 3) continue;
+    if (squares[i].innerHTML === squares[i+1].innerHTML) {
+      let sum = parseInt(squares[i].innerHTML) + parseInt(squares[i+1].innerHTML);
+      [squares[i].innerHTML, squares[i+1].innerHTML] = [0, sum]
+      score += sum
+      best = Math.max(best, score)
+      scoreDisplay.innerHTML = score
+      bestScoreDisplay.innerHTML = best
+      changeStatus = true
+    }
+  }
+}
+
+function combineUp() {
   for (let i = 0; i < squares.length; i++) {
     if (i >= 12) continue;
     if (squares[i].innerHTML === squares[i+width].innerHTML) {
@@ -135,24 +150,39 @@ function combineColumn() {
   }
 }
 
+function combineDown() {
+  for (let i = squares.length - 1; i >= 0; i--) {
+    if (i >= 12) continue;
+    if (squares[i].innerHTML === squares[i+width].innerHTML) {
+      let sum = parseInt(squares[i].innerHTML) + parseInt(squares[i+width].innerHTML);
+      [squares[i].innerHTML, squares[i+width].innerHTML] = [0, sum]
+      score += sum
+      best = Math.max(best, score)
+      scoreDisplay.innerHTML = score
+      bestScoreDisplay.innerHTML = best
+      changeStatus = true
+    }
+  }
+}
+
 //assign functions to keyCodes
 function control(e) {
   changeStatus = false
   if(e.keyCode === 37) { // left
     moveLeft()
-    combineRow()
+    combineLeft()
     moveLeft()
   } else if (e.keyCode === 38) { // up
     moveUp()
-    combineColumn()
+    combineUp()
     moveUp()
   } else if (e.keyCode === 39) { // right
     moveRight()
-    combineRow()
+    combineRight()
     moveRight()
   } else if (e.keyCode === 40) { // down
     moveDown()
-    combineColumn()
+    combineDown()
     moveDown()
   }
 
