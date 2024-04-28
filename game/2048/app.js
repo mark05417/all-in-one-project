@@ -8,6 +8,11 @@ var squares = []
 var changeStatus = false
 var score = 0
 
+var leftEvent = new KeyboardEvent("keyup", {keyCode: 37});
+var upEvent = new KeyboardEvent("keyup", {keyCode: 38});
+var rightEvent = new KeyboardEvent("keyup", {keyCode: 39});
+var downEvent = new KeyboardEvent("keyup", {keyCode: 40});
+
 //create the playing board
 function createBoard() {
   for (let i=0; i < width*width; i++) {
@@ -160,6 +165,22 @@ function checkForWin() {
   }
 }
 
+function autoplay(sec = 5) {
+  function getRandomInt(max) {
+    return Math.floor(Math.random() * max);
+  }
+
+  function oneMove() {
+    let rnd = getRandomInt(1000)
+    if(rnd % 4 == 0)      document.dispatchEvent(leftEvent);
+    else if(rnd % 4 == 1) document.dispatchEvent(upEvent);
+    else if(rnd % 4 == 2) document.dispatchEvent(rightEvent);
+    else if(rnd % 4 == 3) document.dispatchEvent(downEvent);
+  }
+
+  let player = setInterval(oneMove, 100)
+  setTimeout(()=>clearInterval(player), 1000*sec)
+}
 
 // ====== Main Logic ======
 
