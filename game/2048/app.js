@@ -5,6 +5,7 @@ var scoreDisplay
 var resultDisplay
 var squares = []
 
+var changeStatus = false
 var score = 0
 
 //create the playing board
@@ -27,7 +28,7 @@ function generate() {
   
   squares[randomNumber].innerHTML = 2
   addColor()
-  checkForGameOver()
+  checkForWin()
 }
 
 //add color
@@ -55,6 +56,7 @@ function moveRight() {
       if (i % 4 == 3) continue;
       if (squares[i+1].innerHTML == 0){
         [squares[i].innerHTML, squares[i+1].innerHTML] = [squares[i+1].innerHTML, squares[i].innerHTML]
+        changeStatus = true
       }
     }
   }
@@ -66,6 +68,7 @@ function moveLeft() {
       if (i % 4 == 3) continue;
       if (squares[i].innerHTML == 0){
         [squares[i].innerHTML, squares[i+1].innerHTML] = [squares[i+1].innerHTML, squares[i].innerHTML]
+        changeStatus = true
       }
     }
   }
@@ -77,6 +80,7 @@ function moveUp() {
       if (i >= 12) continue;
       if (squares[i].innerHTML == 0){
         [squares[i].innerHTML, squares[i+4].innerHTML] = [squares[i+4].innerHTML, squares[i].innerHTML]
+        changeStatus = true
       }
     }
   }
@@ -88,6 +92,7 @@ function moveDown() {
       if (i >= 12) continue;
       if (squares[i+4].innerHTML == 0){
         [squares[i].innerHTML, squares[i+4].innerHTML] = [squares[i+4].innerHTML, squares[i].innerHTML]
+        changeStatus = true
       }
     }
   }
@@ -101,9 +106,9 @@ function combineRow() {
       [squares[i].innerHTML, squares[i+1].innerHTML] = [sum, 0]
       score += sum
       scoreDisplay.innerHTML = score
+      changeStatus = true
     }
   }
-  checkForWin()
 }
 
 function combineColumn() {
@@ -114,34 +119,35 @@ function combineColumn() {
       [squares[i].innerHTML, squares[i+width].innerHTML] = [sum, 0]
       score += sum
       scoreDisplay.innerHTML = score
+      changeStatus = true
     }
   }
-  checkForWin()
 }
 
 //assign functions to keyCodes
 function control(e) {
+  changeStatus = false
   if(e.keyCode === 37) { // left
     moveLeft()
     combineRow()
     moveLeft()
-    generate()
   } else if (e.keyCode === 38) { // up
     moveUp()
     combineColumn()
     moveUp()
-    generate()
   } else if (e.keyCode === 39) { // right
     moveRight()
     combineRow()
     moveRight()
-    generate()
   } else if (e.keyCode === 40) { // down
     moveDown()
     combineColumn()
     moveDown()
-    generate()
   }
+
+  if (changeStatus){
+    generate()
+  } 
 }
 
 //check for the number 2048 in the squares to win
@@ -149,22 +155,8 @@ function checkForWin() {
   for (let i=0; i < squares.length; i++) {
     if (squares[i].innerHTML == 2048) {
       resultDisplay.innerHTML = 'You WIN'
-      document.removeEventListener('keyup', control)
+      // document.removeEventListener('keyup', control)
     }
-  }
-}
-
-//check if there are no zeros on the board to lose
-function checkForGameOver() {
-  let zeros = 0
-  for (let i=0; i < squares.length; i++) {
-    if (squares[i].innerHTML == 0) {
-      zeros++
-    }
-  }
-  if (zeros === 0) {
-    resultDisplay.innerHTML = 'You LOSE'
-    document.removeEventListener('keyup', control)
   }
 }
 
