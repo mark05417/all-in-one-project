@@ -34,12 +34,12 @@ function generate() {
   } while (squares[randomNumber].innerHTML != 0)
   
   squares[randomNumber].innerHTML = 2
-  addColor()
+  updateColor()
   checkForWin()
 }
 
-//add color
-function addColor() {
+//update color
+function updateColor() {
   for (let i=0; i < squares.length; i++) {
     if (squares[i].innerHTML == 0) squares[i].style.backgroundColor = '#afa192'
     else if (squares[i].innerHTML == 2) squares[i].style.backgroundColor = '#eee4da'
@@ -171,6 +171,7 @@ function checkForWin() {
   }
 }
 
+//trigger autoplay
 function autoplay(sec = 5) {
   function getRandomInt(max) {
     return Math.floor(Math.random() * max);
@@ -186,6 +187,17 @@ function autoplay(sec = 5) {
 
   let player = setInterval(oneMove, 100)
   setTimeout(()=>clearInterval(player), 1000*sec)
+}
+
+//trigger reset game
+function resetGame() {
+  squares = []
+  gridDisplay.innerHTML = ''
+
+  score = 0
+  scoreDisplay.innerHTML = score
+  
+  createBoard()
 }
 
 // ====== Main Logic ======

@@ -6,8 +6,8 @@ body {
 }
 
 h1 {
-  font-size: 80px;
-  line-height: 0.7;
+  font-size: 60px;
+  line-height: 1;
   color: #776E65;
   margin: 0px;
 }
@@ -20,25 +20,49 @@ h1 {
 .info {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 20px;
+  height: 60px;
+  padding: 20px 0px; /* 按钮内边距 */
 }
 
 .score-container {
   text-align: center;
-  width: 70px;
-  height: 60px;
-  border-radius: 3px;
+  width: 60px;
+  border-radius: 10px;
   background-color: #8f7a66;
   color: #FFFFFF;
+  margin: 4px 2px;
 }
 
 .score-score {
-  font-size: 30px;
+  font-size: 25px;
 }
 
 .score-title {
   font-size: 16px;
 }
+
+button {
+  background-color: #8f7a66; /* 按钮背景颜色 */
+  border: none; /* 按钮边框 */
+  color: white; /* 文本颜色 */
+  padding: 10px 10px; /* 按钮内边距 */
+  text-align: center; /* 文本居中 */
+  text-decoration: none; /* 文本装饰 */
+  display: inline-block; /* 内联块元素 */
+  font-size: 16px; /* 文本字体大小 */
+  margin: 4px 2px; /* 外边距 */
+  cursor: pointer; /* 鼠标样式 */
+  border-radius: 10px; /* 圆角 */
+}
+
+button:hover {
+  background-color: #afa192;
+}
+
+button:active {
+  background-color: #8f7a66;
+}
+
 
 .grid{
   display: flex;
