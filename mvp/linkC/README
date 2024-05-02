@@ -1,0 +1,5 @@
+gcc -c a.c
+gcc -c b.c
+gcc -o out a.o b.o
+
+./out
