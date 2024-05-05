@@ -1,16 +1,19 @@
 <template>
   <div id="app">
     <TodoList />
+    <TicTacToe />
   </div>
 </template>
 
 <script>
 import TodoList from './components/TodoList.vue';
+import TicTacToe from './components/TicTacToe.vue';
 
 export default {
   name: 'App',
   components: {
-    TodoList
+    TodoList,
+    TicTacToe,
   }
 };
 </script>
