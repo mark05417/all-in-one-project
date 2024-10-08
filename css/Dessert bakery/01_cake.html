@@ -1,0 +1,71 @@
+<div class="chocolateCake">
+    <div class="cream"></div>
+    <div class="top"></div>
+    <div class="side">
+        <div class="border"></div>
+        <div class="filling"></div>
+    </div>
+</div>
+
+
+<style>
+    * {
+  font-size: 5vmin;
+}
+
+.chocolateCake {
+  position: absolute;
+  left: 30%;
+  top: 50%;
+  width: 1rem;
+  height: 1rem;
+}
+.chocolateCake .top {
+  position: absolute;
+  bottom: 0.95rem;
+  left: 0rem;
+  width: 11.5rem;
+  height: 4.5rem;
+  transform: rotate(-15.5deg);
+  transform-origin: left bottom;
+  background: radial-gradient(circle, rgb(71, 29, 21) 0%, rgb(42, 14, 9) 45%, rgb(71, 29, 21) 100%);
+  clip-path: polygon(75% 16%, 88% 38%, 96% 68%, 100% 100%, 0 100%, 56% 0);
+}
+.chocolateCake .side {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 11.8rem;
+  height: 9rem;
+  background: linear-gradient(90deg, rgb(149, 84, 60) 0%, rgb(98, 46, 27) 61%);
+  background-size: 100% 100%;
+  transform-origin: left top;
+  transform: rotateX(50deg) rotateY(-20deg) skewX(4deg);
+  clip-path: polygon(0% 0%, 100% 1%, 90% 91%, 5% 86%);
+}
+.chocolateCake .side .border {
+  position: absolute;
+  top: 1rem;
+  left: 0;
+  width: 100%;
+  height: 1rem;
+  background: linear-gradient(0deg, rgb(251, 242, 243) 0%, rgb(245, 230, 231) 56%);
+  background-size: 100% 100%;
+  background-position: 0 0;
+  transform-origin: bottom right;
+  transform: rotate(0.8deg);
+  box-shadow: 0 0 0.5rem 0.6rem rgb(71, 29, 21);
+}
+.chocolateCake .side .filling {
+  position: absolute;
+  bottom: 2rem;
+  left: 0;
+  width: 100%;
+  height: 2rem;
+  background: linear-gradient(0deg, rgb(251, 242, 243) 0%, rgb(245, 230, 231) 56%);
+  background-size: 100% 100%;
+  box-shadow: 0 0 0.5rem 0.6rem rgb(71, 29, 21);
+  transform-origin: bottom right;
+  transform: rotate(2deg);
+}
+</style>

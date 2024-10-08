@@ -1,0 +1,193 @@
+<div class="strawberryCake">
+    <div class="strawberry"></div>
+    <div class="grass"></div>
+    <div class="cake-top"></div>
+    <div class="cake-mid">
+        <div class="jam"></div>
+    </div>
+    <div class="cake-cookie"></div>
+</div>
+
+<style>
+* {
+  font-size: 5vmin;
+}
+
+.strawberryCake {
+  position: absolute;
+  top: calc(50% + 2rem);
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.strawberryCake .strawberry {
+  position: absolute;
+  top: -0.8rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 3rem;
+  height: 3rem;
+  background: radial-gradient(circle at 42% 38%, rgb(255, 140, 100) 10%, rgb(237, 66, 36) 75%);
+  clip-path: polygon(5% 33%, 20% 16%, 49% 6%, 86% 12%, 100% 48%, 100% 80%, 89% 100%, 52% 97%, 7% 79%, 0% 55%);
+  z-index: 2;
+}
+.strawberryCake .strawberry::before {
+  content: "";
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  width: 0.08rem;
+  height: 0.16rem;
+  border-radius: 50%;
+  transform: rotate(-10deg);
+  box-shadow: 0.4rem 0.8rem 0 0 #f9cb63, 0.2rem 0.8rem 0 0 #f9cb63, -0.4rem 0.6rem 0 0 #f9cb63, 0.8rem 1rem 0 0 #f9cb63, 0rem -0.2rem 0 0 #f9cb63, 1rem 0rem 0 0 #f9cb63;
+}
+.strawberryCake .strawberry::after {
+  content: "";
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  width: 0.08rem;
+  height: 0.16rem;
+  border-radius: 50%;
+  transform: rotate(-30deg);
+  box-shadow: 0.2rem 0.2rem 0 0 #f9cb63, 0.4rem 0.6rem 0 0 #f9cb63, 0.2rem 1.4rem 0 0 #f9cb63, -0.2rem -0.2rem 0 0 #f9cb63, 0.8rem 0.6rem 0 0 #f9cb63, 0.6rem -0.2rem 0 0 #f9cb63;
+}
+.strawberryCake .grass {
+  position: absolute;
+  top: -1rem;
+  left: 3rem;
+}
+.strawberryCake .grass::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1rem;
+  height: 1rem;
+  background: linear-gradient(324deg, rgb(110, 150, 13) 0%, rgb(127, 174, 20) 56%);
+  clip-path: polygon(44% 100%, 1% 53%, 0% 15%, 43% 29%, 45% 92%, 81% 28%, 100% 23%, 100% 75%, 68% 96%);
+  transform: rotate(-50deg);
+}
+.strawberryCake .grass::after {
+  content: "";
+  position: absolute;
+  top: -0.2rem;
+  left: 0.1rem;
+  width: 1rem;
+  height: 1rem;
+  background: linear-gradient(250deg, rgb(138, 185, 25) 0%, rgb(154, 214, 33) 57%);
+  clip-path: polygon(44% 100%, 1% 53%, 0% 15%, 43% 29%, 45% 92%, 81% 28%, 100% 23%, 100% 75%, 68% 96%);
+  transform: rotate(-35deg);
+  z-index: 3;
+}
+.strawberryCake .cake-top {
+  position: absolute;
+  top: 0.8rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 10rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: linear-gradient(0deg, rgb(255, 248, 234) 0%, rgb(255, 243, 195) 50%);
+  z-index: 1;
+}
+.strawberryCake .cake-top::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 8rem;
+  height: 1.6rem;
+  border-radius: 50%;
+  background: #f66f5a;
+  opacity: 0.2;
+  box-shadow: 0 0 0.2rem 0 #f66f5a;
+}
+.strawberryCake .cake-top::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 6rem;
+  height: 1.2rem;
+  border-radius: 50%;
+  background: #f66f5a;
+  opacity: 0.6;
+  box-shadow: 0 0 0.2rem 0 #f66f5a;
+}
+.strawberryCake .cake-mid {
+  width: 9rem;
+  height: 13rem;
+  background: linear-gradient(314deg, rgb(250, 211, 137) 0%, rgb(255, 243, 195) 68%);
+  transform: perspective(50em) rotateX(-50deg);
+  overflow: hidden;
+}
+.strawberryCake .cake-mid .jam {
+  position: absolute;
+  top: -1.2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 11rem;
+  height: 5rem;
+  border-radius: 50%;
+  outline: 2rem solid #d1442e;
+}
+.strawberryCake .cake-mid .jam::before {
+  content: "";
+  position: absolute;
+  top: 4.5rem;
+  right: 1.6rem;
+  width: 1rem;
+  height: 3rem;
+  border-radius: 50%;
+  background: #d1442e;
+  box-shadow: 0.8rem 1.2rem 0 0 #d1442e, -0.6rem 1rem 0 0 #d1442e, -3rem 0.6rem 0 0 #d1442e, -3.8rem 1rem 0 0 #d1442e, -5.8rem 0.4rem 0 0 #d1442e, -7.4rem -0.2rem 0 0 #d1442e, -6.6rem 0.8rem 0 0 #d1442e;
+}
+.strawberryCake .cake-mid .jam::after {
+  content: "";
+  position: absolute;
+  top: 6.2rem;
+  right: 2.8rem;
+  width: 2rem;
+  height: 1.4rem;
+  border-radius: 50%;
+  background: #d1442e;
+  box-shadow: -3rem 0rem 0 0 #d1442e;
+}
+.strawberryCake .cake-cookie {
+  position: absolute;
+  bottom: 1.8rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 8.2rem;
+  height: 1.8rem;
+  border-radius: 50%;
+  background: linear-gradient(324deg, rgb(225, 127, 50) 0%, rgb(191, 99, 26) 57%);
+  clip-path: polygon(0% 100%, 100% 100%, 100% 44%, 76% 37%, 54% 51%, 45% 43%, 31% 50%, 24% 37%, 11% 50%, 0% 37%);
+  overflow: hidden;
+}
+.strawberryCake .cake-cookie::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0.4rem;
+  height: 0.4rem;
+  transform: rotate(10deg);
+  transform-origin: top left;
+  box-shadow: 1rem 1rem 0 0 #e17f32, 2.2rem 0.4rem 0 0 #e17f32, 3rem 1rem 0 0 #e17f32, 5rem 0.2rem 0 0 #e17f32, 7.2rem -0.4rem 0 0 #e17f32;
+}
+.strawberryCake .cake-cookie::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0.4rem;
+  height: 0.4rem;
+  transform: rotate(-10deg);
+  transform-origin: top left;
+  box-shadow: -0.2rem 0.6rem 0 0 #e17f32, 1rem 0.8rem 0 0 #e17f32, 3.4rem 1.6rem 0 0 #e17f32, 6rem 2rem 0 0 #e17f32;
+}
+</style>
