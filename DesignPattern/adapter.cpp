@@ -1,39 +1,40 @@
 #include <iostream>
-#include <memory>
-using namespace std;
 
-class XMLData {
+// 已存在舊的實作
+class OldRectangle {
 public:
-    virtual std::string getXMLData() = 0;
-    virtual ~XMLData() = default;
-};
-
-class JSONData {
-public:
-    std::string getJSONData() {
-        return "{\"name\": \"John\", \"age\": 30}";
+    void draw(int x1, int y1, int x2, int y2) {
+        std::cout << "OldRectangle: (" << x1 << ", " << y1 << "), (" << x2 << ", " << y2 << ")\n";
     }
 };
 
-class JSONToXMLAdapter : public XMLData {
+// 新的接口
+class NewRectangleInterface {
+public:
+    virtual void drawRectangle(int x, int y, int width, int height) = 0;
+    virtual ~NewRectangleInterface() = default;
+};
+
+// Adapter
+class RectangleAdapter : public NewRectangleInterface {
 private:
-    JSONData* jsonData;
+    OldRectangle* oldRectangle;
 public:
-    JSONToXMLAdapter(JSONData* data) : jsonData(data) {}
+    RectangleAdapter(OldRectangle* rectangle) : oldRectangle(rectangle) {}
 
-    std::string getXMLData() override {
-        std::string jsonData = this->jsonData->getJSONData();
-        std::string xmlData = "<root>" + jsonData + "</root>";
-        return xmlData;
+    void drawRectangle(int x, int y, int width, int height) override {
+        oldRectangle->draw(x, y, x + width, y + height);
     }
 };
 
+// client
 int main() {
-    JSONData jsonData;
-    XMLData adapter = JSONToXMLAdapter(&jsonData);
-
-    std::cout << "XML Data: " << adapter.getXMLData() << std::endl;
-
-
+    OldRectangle* oldRectangle = new OldRectangle();
+    NewRectangleInterface* adapter = new RectangleAdapter(oldRectangle);
+    
+    adapter->drawRectangle(10, 20, 30, 40);
+    
+    delete oldRectangle;
+    delete adapter;
     return 0;
 }
