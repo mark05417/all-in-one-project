@@ -15,7 +15,7 @@ private:
 class ShapeFactory {
 public:
     Circle* getCircle(std::string color) {
-        Circle* circle = static_cast<Circle*>(circleMap[color]);
+        Circle* circle = circleMap[color];
         if (circle == nullptr) {
             circle = new Circle(color);
             circleMap[color] = circle;

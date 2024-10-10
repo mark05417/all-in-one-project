@@ -1,64 +1,70 @@
 #include <iostream>
 #include <memory>
-// Weapon
-class Weapon {
+
+// Implementor 抽象接口
+class Color {
 public:
-    virtual void use() = 0;
-    virtual ~Weapon() {}
+    virtual void applyColor() = 0;  // 純虛函數，子類別需要具體實現
+    virtual ~Color() = default;     // 虛擬析構函數
 };
 
-class Sword : public Weapon {
+// ConcreteImplementor 具體實現
+class RedColor : public Color {
 public:
-    void use() override {
-        std::cout << "使用劍" << std::endl;
+    void applyColor() override {
+        std::cout << "Applying Red color." << std::endl;
     }
 };
 
-class Staff : public Weapon {
+class BlueColor : public Color {
 public:
-    void use() override {
-        std::cout << "使用法杖" << std::endl;
+    void applyColor() override {
+        std::cout << "Applying Blue color." << std::endl;
     }
 };
 
-// Character
-class Character {
+// Abstraction 抽象部分
+class Shape {
 protected:
-    Weapon* weapon;
+    std::shared_ptr<Color> color;  // 持有 Implementor 的引用
 public:
-    Character(Weapon* w) : weapon(w) {}
-    virtual void attack() = 0;
-    virtual ~Character() {}
+    Shape(std::shared_ptr<Color> c) : color(c) {}
+    virtual void draw() = 0;        // 純虛函數，子類別需要具體實現
+    virtual ~Shape() = default;     // 虛擬析構函數
 };
 
-class Human : public Character {
+// RefinedAbstraction 具體抽象部分
+class Circle : public Shape {
 public:
-    Human(Weapon* w) : Character(w) {}
-    void attack() override {
-        std::cout << "人類";
-        weapon->use();
+    Circle(std::shared_ptr<Color> c) : Shape(c) {}
+
+    void draw() override {
+        std::cout << "Drawing a Circle. ";
+        color->applyColor();  // 使用實現部分
     }
 };
 
-class Elf : public Character {
+class Square : public Shape {
 public:
-    Elf(Weapon* w) : Character(w) {}
-    void attack() override {
-        std::cout << "精靈";
-        weapon->use();
+    Square(std::shared_ptr<Color> c) : Shape(c) {}
+
+    void draw() override {
+        std::cout << "Drawing a Square. ";
+        color->applyColor();  // 使用實現部分
     }
 };
 
 int main() {
-    std::unique_ptr<Weapon> sword = std::make_unique<Sword>();
-    std::unique_ptr<Weapon> staff = std::make_unique<Staff>();
-    std::unique_ptr<Character> human = std::make_unique<Human>(sword.get());
-    std::unique_ptr<Character> elf = std::make_unique<Elf>(staff.get());
-    human->attack();
-    elf->attack();
-    human = std::make_unique<Human>(staff.get());
-    elf = std::make_unique<Elf>(sword.get());
-    human->attack();
-    elf->attack();
+    // 具體實現類別
+    std::shared_ptr<Color> red = std::make_shared<RedColor>();
+    std::shared_ptr<Color> blue = std::make_shared<BlueColor>();
+
+    // 使用不同的實現來創建形狀
+    std::shared_ptr<Shape> circle = std::make_shared<Circle>(red);
+    std::shared_ptr<Shape> square = std::make_shared<Square>(blue);
+
+    circle->draw();  // 繪製紅色的圓
+    square->draw();  // 繪製藍色的正方形
+
     return 0;
 }
