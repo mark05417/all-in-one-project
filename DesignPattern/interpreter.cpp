@@ -1,5 +1,7 @@
 #include <iostream>
 #include <string>
+#include <sstream>
+#include <vector>
 
 using namespace std;
 
@@ -9,35 +11,34 @@ public:
     virtual ~Expression() = default;
 };
 
-class NumberExpression : public Expression {
+class Number : public Expression {
     int number;
 public:
-    NumberExpression(int num) : number(num) {}
+    Number(int num) : number(num) {}
     int interpret() override {
         return number;
     }
 };
 
-class AddExpression : public Expression {
+class Add : public Expression {
     Expression *left, *right;
 public:
-    AddExpression(Expression* l, Expression* r) : left(l), right(r) {}
+    Add(Expression* l, Expression* r) : left(l), right(r) {}
     int interpret() override {
         return left->interpret() + right->interpret();
     }
 };
 
-class MultiplyExpression : public Expression {
-    Expression *left, *right;
-public:
-    MultiplyExpression(Expression* l, Expression* r) : left(l), right(r) {}
-    int interpret() override {
-        return left->interpret() * right->interpret();
-    }
-};
 
 int main(void) {
-    cout << (new MultiplyExpression(new NumberExpression(2), new NumberExpression(3)))->interpret() << endl;
-    cout << (new AddExpression(new NumberExpression(2), new NumberExpression(3)))->interpret() << endl;
+    // std::string input = "4 + 3";
+
+    Expression* left = new Number(4);
+    Expression* right = new Number(3);
+    Expression* add = new Add(left, right);
+    std::cout << add->interpret() << std::endl;
+    delete left;
+    delete right;
+    delete add;
     return 0;
 }

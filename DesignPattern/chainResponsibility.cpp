@@ -1,63 +1,50 @@
 #include <iostream>
 #include <string>
 
-class CustomerServiceHandler {
-protected:
-    CustomerServiceHandler* nextHandler;
+class Handler {
 public:
-    CustomerServiceHandler(CustomerServiceHandler* handler) : nextHandler(handler) {}
-    virtual ~CustomerServiceHandler() = default;
-    virtual void setNext(CustomerServiceHandler* handler) {
+    virtual void handleRequest(int request) {};
+    virtual Handler* setNext(Handler* handler) {
         nextHandler = handler;
+        return handler;
     }
-    virtual void handleRequest(const std::string& request) = 0;
+protected:
+    Handler* nextHandler = nullptr;
 };
 
+class ConcreteHandler1 : public Handler {
+public:
+    void handleRequest(int request) override {
+        if (request < 10) {
+            std::cout << "ConcreteHandler1 handled request: " << request << std::endl;
+        } else if (nextHandler) {
+            nextHandler->handleRequest(request);
+        } else {
+            std::cout << "Error" << std::endl;
+        }
+    }
+};
 
-class AutomatedSystem : public CustomerServiceHandler {
+class ConcreteHandler2 : public Handler {
 public:
-    AutomatedSystem(CustomerServiceHandler* handler) : CustomerServiceHandler(handler) {}
-    void handleRequest(const std::string& request) override {
-        if (request == "簡單問題") {
-            std::cout << "自動系統：我可以回答這個簡單問題。" << std::endl;
-        } else if (nextHandler != nullptr) {
+    void handleRequest(int request) override {
+        if (request >= 10 && request < 20) {
+            std::cout << "ConcreteHandler2 handled request: " << request << std::endl;
+        } else if (nextHandler) {
             nextHandler->handleRequest(request);
         } else {
-            std::cout << "無法解決這個問題。" << std::endl;
+            std::cout << "Error" << std::endl;
         }
     }
 };
-class HumanAgent : public CustomerServiceHandler {
-public:
-    HumanAgent(CustomerServiceHandler* handler) : CustomerServiceHandler(handler) {}
-    void handleRequest(const std::string& request) override {
-        if (request == "複雜問題") {
-            std::cout << "人工客服：我來處理這個複雜問題。" << std::endl;
-        } else if (nextHandler != nullptr) {
-            nextHandler->handleRequest(request);
-        } else {
-            std::cout << "無法解決這個問題。" << std::endl;
-        }
-    }
-};
-class TechnicalSupport : public CustomerServiceHandler {
-public:
-    TechnicalSupport(CustomerServiceHandler* handler) : CustomerServiceHandler(handler) {}
-    void handleRequest(const std::string& request) override {
-        if (request == "技術問題") {
-            std::cout << "技術支援團隊：我們會深入研究並解決這個問題。" << std::endl;
-        } else if (nextHandler != nullptr) {
-            nextHandler->handleRequest(request);
-        } else {
-            std::cout << "無法解決這個問題。" << std::endl;
-        }
-    }
-};
+
 
 int main() {
-    AutomatedSystem automatedSystem(new HumanAgent(new TechnicalSupport(nullptr)));
-    automatedSystem.handleRequest("簡單問題");
-    automatedSystem.handleRequest("複雜問題");
-    automatedSystem.handleRequest("技術問題");
+    Handler* handler1 = new ConcreteHandler1();
+    Handler* handler2 = new ConcreteHandler2();
+    handler1->setNext(handler2);
+    handler1->handleRequest(5);
+    handler1->handleRequest(15);
+    handler1->handleRequest(25);
     return 0;
 }
