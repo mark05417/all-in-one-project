@@ -1,4 +1,5 @@
 import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import './App.css';
 
 // Navbar component
@@ -6,31 +7,41 @@ const Navbar = () => {
   return (
     <nav>
       <ul>
-        <li><a href="#home">Home</a></li>
-        <li><a href="#about">About</a></li>
-        <li><a href="#contact">Contact</a></li>
+        <li><Link to="/">Home</Link></li>
+        <li><Link to="/about">About</Link></li>
+        <li><Link to="/contact">Contact</Link></li>
       </ul>
     </nav>
   );
 };
 
-// Main content component
-const Main = () => {
+// Home component
+const Home = () => {
   return (
-    <main>
-      <section id="home">
-        <h1>Welcome to My Website</h1>
-        <p>This is a simple React-based website structure.</p>
-      </section>
-      <section id="about">
-        <h2>About Us</h2>
-        <p>We are building amazing web applications with React!</p>
-      </section>
-      <section id="contact">
-        <h2>Contact Us</h2>
-        <p>Email: contact@example.com</p>
-      </section>
-    </main>
+    <section>
+      <h1>Welcome to My Website</h1>
+      <p>This is the Home page. Explore the content using the navigation bar.</p>
+    </section>
+  );
+};
+
+// About component
+const About = () => {
+  return (
+    <section>
+      <h2>About Us</h2>
+      <p>We are building amazing web applications with React!</p>
+    </section>
+  );
+};
+
+// Contact component
+const Contact = () => {
+  return (
+    <section>
+      <h2>Contact Us</h2>
+      <p>Email: contact@example.com</p>
+    </section>
   );
 };
 
@@ -45,11 +56,17 @@ const Footer = () => {
 
 function App() {
   return (
-    <div className="App">
-      <Navbar />
-      <Main />
-      <Footer />
-    </div>
+    <Router>
+      <div className="App">
+        <Navbar />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+        </Routes>
+        <Footer />
+      </div>
+    </Router>
   );
 }
 
