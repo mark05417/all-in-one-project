@@ -1,72 +1,55 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import './App.css';
+// src/App.js
+import React, { useState } from 'react';
+import { auth, googleProvider, microsoftProvider, signInWithPopup } from './firebase';
 
-// Navbar component
-const Navbar = () => {
-  return (
-    <nav>
-      <ul>
-        <li><Link to="/">Home</Link></li>
-        <li><Link to="/about">About</Link></li>
-        <li><Link to="/contact">Contact</Link></li>
-      </ul>
-    </nav>
-  );
-};
-
-// Home component
-const Home = () => {
-  return (
-    <section>
-      <h1>Welcome to My Website</h1>
-      <p>This is the Home page. Explore the content using the navigation bar.</p>
-    </section>
-  );
-};
-
-// About component
-const About = () => {
-  return (
-    <section>
-      <h2>About Us</h2>
-      <p>We are building amazing web applications with React!</p>
-    </section>
-  );
-};
-
-// Contact component
-const Contact = () => {
-  return (
-    <section>
-      <h2>Contact Us</h2>
-      <p>Email: contact@example.com</p>
-    </section>
-  );
-};
-
-// Footer component
-const Footer = () => {
-  return (
-    <footer>
-      <p>© 2024 My Website. All Rights Reserved.</p>
-    </footer>
-  );
-};
+import { getAuth, fetchSignInMethodsForEmail } from "firebase/auth";
 
 function App() {
+  const [user, setUser] = useState(null);
+
+  const auth = getAuth();
+  const email = "user@example.com"; // 錯誤中提供的電子郵件地址
+
+  const signInWithGoogle = async () => {
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      setUser(result.user);
+    } catch (error) {
+      console.error('Google sign-in error:', error);
+    }
+  };
+
+  const signInWithMicrosoft = async () => {
+    try {
+      const result = await signInWithPopup(auth, microsoftProvider);
+      setUser(result.user);
+    } catch (error) {
+      console.error('Microsoft sign-in error:', error);
+    }
+  };
+
+  const signOut = () => {
+    auth.signOut();
+    setUser(null);
+  };
+
   return (
-    <Router>
-      <div className="App">
-        <Navbar />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
-        </Routes>
-        <Footer />
-      </div>
-    </Router>
+    <div className="App">
+      <h1>OAuth Login Example</h1>
+      {user ? (
+        <div>
+          <h2>Welcome, {user.displayName}</h2>
+          <img src={user.photoURL} alt="User Avatar" />
+          <p>Email: {user.email}</p>
+          <button onClick={signOut}>Sign Out</button>
+        </div>
+      ) : (
+        <div>
+          <button onClick={signInWithGoogle}>Sign in with Google</button>
+          <button onClick={signInWithMicrosoft}>Sign in with Microsoft</button>
+        </div>
+      )}
+    </div>
   );
 }
 
