@@ -11,7 +11,7 @@
     <div class="textarea-container">
         <div class="line-numbers" id="lineNumbers">1</div>
         <textarea id="input-data" rows="15" cols="40" oninput="updateLineNumbers()" onscroll="syncScroll()">
-int a = 1;
+int a = 1; // aaa
 int b = 2;
 
 /* print a or b according to c */
@@ -85,9 +85,9 @@ while (i < 10){
     }
     
     // Token 類別
-    function Token(type, text){
+    function Token(type, value){
         this.type = type;
-        this.text = text;
+        this.value = value;
     }
 
     Token.tokens = {};
@@ -145,9 +145,9 @@ while (i < 10){
         this.state = Scanner.START_STATE;
     }
 
-    Scanner.prototype.makeToken = function (type, text){
+    Scanner.prototype.makeToken = function (type, value){
         this.currentToken.type = type;
-        this.currentToken.text = text;
+        this.currentToken.value = value;
         return type;
     }
 
@@ -163,7 +163,7 @@ while (i < 10){
                     var c = this.reader.nextChar();
                     if ((c >= "a" && c <= "z") || (c >= "A" && c <= "Z")) {
                         this.state = Scanner.IDENTIFIER_STATE;
-                        //we need to remember what the token's text is
+                        //we need to remember what the token's value is
                         bufferStr = c;
                     } else if (c >= "0" && c <= "9") {
                         this.state = Scanner.NUMBER_STATE;
@@ -378,7 +378,244 @@ while (i < 10){
             }
         }
     }
+  
+    class Node {
+        constructor(type, value = null) {
+            this.type = type;
+            this.value = value;
+            this.children = [];
+        }
 
+        addChild(node) {
+            this.children.push(node);
+        }
+    }
+
+    function Parser(tokens) {
+        this.tokens = tokens
+        this.current = 0;
+    }
+
+    // 看 token
+    Parser.prototype.peek = function() {
+        // console.log("xxx " + this.tokens[this.current].type + 
+        //     " " + this.tokens[this.current].value);
+        return this.tokens[this.current];
+    }
+
+    // 消耗 token
+    Parser.prototype.consume = function(expectedType) {
+        const token = this.peek();
+        // console.log("zzz " + token)
+        if (token.type === expectedType) {
+            this.current++;
+            return token;
+        }
+        alert("Expected " + expectedType + " but got " + token.type);
+    }
+    // 檢查 token
+    Parser.prototype.match = function(type) {
+        if (this.current >= this.tokens.length) {
+            return false;
+        }
+        if (this.peek().type === type) {
+            return true;
+        }
+        return false;
+    }
+
+    // Program -> Statement*
+    // Statement -> IfStatement | WhileStatement | Declaration ';' 
+    //              | "print" Expr ';' | line comment | block comment
+    //              | Expr
+    // IfStatement -> "if" "(" Expr ")" Block ("else" Block)?
+    // Declaration -> Type IDENTIFIER ("=" Expr)? ";"
+    // Block -> "{" Statement* "}"
+    // Expr -> Comparison   // 算術表達式
+    // Comparison -> Term ((">" | "<" | ">=" | "<=") Term)*  // 增加比較運算
+    // Term -> Factor ('*' Factor)*
+    // Factor -> ("++" | "--")? Primary ("++" | "--")?  // 支援前置與後置 ++, --
+    // Primary -> '(' Expr ')' | NUMBER | IDENTIFIER
+    // Type -> "int" | "bool"
+    Parser.prototype.parse = function() {
+        const root = new Node("Program");
+        while (this.current < this.tokens.length) {
+            root.addChild(this.parseStatement());
+        }
+        return root;
+    }
+
+    Parser.prototype.parseStatement = function() {
+        let node;
+        if (this.match("IF_TOKEN")) {
+            return this.parseIfStatement();
+        } else if (this.match("WHILE_TOKEN")){
+            return this.parseWhileStatement();
+        } else if (this.match("TYPE_TOKEN")) {
+            node = this.parseDeclStatement();
+        } else if (this.match("BLOCKCOMMENT_TOKEN")) {
+            return new Node("Comment", this.consume("BLOCKCOMMENT_TOKEN").value);
+        } else if (this.match("LINECOMMENT_TOKEN")) {
+            return new Node("Comment", this.consume("LINECOMMENT_TOKEN").value);
+        } else if (this.match("PRINT_TOKEN")) {
+            node = this.parsePrintStatement();
+        } else {
+            node = this.parseExpr();
+        } 
+
+        if (!this.match("SEMICOLON_TOKEN")) {
+            alert("Expected ';' but got " + this.peek().type);
+        }
+        this.consume("SEMICOLON_TOKEN");
+
+        return node;
+    }
+
+    Parser.prototype.parsePrintStatement = function() {
+        const node = new Node("PrintStatement");
+        this.consume("PRINT_TOKEN");
+        node.addChild(this.parseExpr());
+        return node;
+    }
+
+    Parser.prototype.parseDeclStatement = function() {
+        const typeToken = this.consume("TYPE_TOKEN");
+        const declNode = new Node("Declaration", typeToken.value);
+
+        const identifierToken = this.consume("IDENTIFIER_TOKEN");
+        declNode.addChild(new Node("Identifier", identifierToken.value));
+
+        if (!this.match("ASSIGN_TOKEN")) {
+            alert("Expected '=' but got " + this.peek().type);
+        }
+
+        this.consume("ASSIGN_TOKEN");
+        
+        declNode.addChild(this.parseExpr());
+
+        return declNode;
+    }
+
+    Parser.prototype.parseWhileStatement = function() {
+        const node = new Node("WhileStatement");
+        this.consume("WHILE_TOKEN");
+        this.consume("LEFTPAREN_TOKEN");
+        node.addChild(this.parseExpr());
+        this.consume("RIGHTPAREN_TOKEN");
+        node.addChild(this.parseBlock());
+        return node;
+    }
+    
+    Parser.prototype.parseIfStatement = function() {
+        const node = new Node("IfStatement");
+        this.consume("IF_TOKEN");
+        this.consume("LEFTPAREN_TOKEN");
+        node.addChild(this.parseExpr());
+        this.consume("RIGHTPAREN_TOKEN");
+        node.addChild(this.parseBlock());
+        
+        if (this.match("ELSE_TOKEN")) {
+            this.consume("ELSE_TOKEN");
+            node.addChild(this.parseBlock());
+        }
+        return node;
+    }
+
+    Parser.prototype.parseBlock = function() {
+        const node = new Node("Block");
+        this.consume("LEFTBRACE_TOKEN");
+        while (!this.match("RIGHTBRACE_TOKEN")) {
+            node.addChild(this.parseStatement());
+        }
+
+        this.consume("RIGHTBRACE_TOKEN");
+        return node;
+    }
+
+    Parser.prototype.parseExpr = function() {
+        var node = new Node("Expr");
+        node.addChild(this.parseTerm());
+        while (this.match("PLUS_TOKEN") || this.match("MINUS_TOKEN")) {
+            if (this.match("MINUS_TOKEN")) {
+                this.consume("MINUS_TOKEN");
+                node.addChild(new Node("MINUS_TOKEN", "-"));
+            } else {
+                this.consume("PLUS_TOKEN");
+                node.addChild(new Node("PLUS_TOKEN", "+"));
+            }
+            const right = this.parseTerm();
+            node.addChild(right);
+        }
+        while (["LESS_TOKEN", "GREATER_TOKEN", "LESS_EQUAL_TOKEN", "GREATER_EQUAL_TOKEN"]
+                .includes(this.peek().type)) {
+            const operator = this.consume(this.peek().type).value;
+            const comparisonNode = new Node("Comparison", operator);
+            comparisonNode.addChild(node);      // 左側節點
+            comparisonNode.addChild(this.parseTerm()); // 右側節點
+            node = comparisonNode;  // 更新當前的 node
+        }
+        return node;
+    }
+
+    Parser.prototype.parseTerm = function() {
+        const node = new Node("Term");
+        node.addChild(this.parseFactor());
+        while (this.match("MULTIPLY_TOKEN")) {
+            // console.log("333");
+            const operator = this.consume("MULTIPLY_TOKEN");
+            const right = this.parseFactor();
+            node.addChild(new Node(operator.type, operator.value));
+            node.addChild(right);
+        }
+        return node;
+    }
+
+    Parser.prototype.parseFactor = function() {
+        var node = new Node("Factor");
+
+        if (this.match("PLUSPLUS_TOKEN")) {
+            this.consume("PLUSPLUS_TOKEN");
+            node.addChild(new Node("Unary", "++"));
+        }
+        if (this.match("MINUSMINUS_TOKEN")) {
+            this.consume("MINUSMINUS_TOKEN");
+            node.addChild(new Node("Unary", "--"));
+        }
+
+        node.addChild(this.parsePrimary());
+
+        if (this.match("PLUSPLUS_TOKEN")) {
+            this.consume("PLUSPLUS_TOKEN");
+            node.addChild(new Node("Unary", "++"));
+        }
+        if (this.match("MINUSMINUS_TOKEN")) {
+            this.consume("MINUSMINUS_TOKEN");
+            node.addChild(new Node("Unary", "--"));
+        }
+
+        return node;
+    }
+
+    Parser.prototype.parsePrimary = function() {
+        if (this.match("LEFT_PAREN")) {
+            const node = new Node("Expr");
+            this.consume("LEFT_PAREN");
+            node.addChild(this.parseExpr());
+            this.consume("RIGHT_PAREN");
+            return node;
+        }
+        if (this.match("NUMBER_TOKEN")) {
+            return new Node("NUMBER", this.consume("NUMBER_TOKEN").value);
+        }
+        if (this.match("IDENTIFIER_TOKEN")) {
+            return new Node("IDENTIFIER", this.consume("IDENTIFIER_TOKEN").value);
+        }
+        if (this.match("BOOLLITERAL_TOKEN")) {
+            return new Node("BOOLLITERAL", this.consume("BOOLLITERAL_TOKEN").value);
+        }
+        alert("current: " + this.current);  
+        alert("Unexpected token: " + this.peek().type);
+    }
 
     /////////////////////
     // 更新行號
@@ -404,14 +641,23 @@ while (i < 10){
     button.addEventListener("click", function() {
         const reader = new Reader(document.getElementById("input-data").value);
         const scanner = new Scanner(reader);
+        var tokens = [];
         while (true) {
             var token = scanner.nextToken();
             if (token == Token.tokens.EOS_TOKEN){
                 break;
             }
-            console.log("Read token: " + Token.backwardMap[token] + 
-                " " + scanner.currLine + " " + scanner.currentToken.text);
+            tokens.push(new Token(Token.backwardMap[token], scanner.currentToken.value));
+            console.log(
+                "Read token: " + Token.backwardMap[token] + 
+                " " + scanner.currLine + 
+                " " + scanner.currentToken.value
+            );
         }
+        var parser = new Parser(tokens);
+        // console.log(tokens);;
+        const root = parser.parse();
+        console.log(JSON.stringify(root, null, 2));
     });
 </script>
 </html>
