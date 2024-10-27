@@ -109,14 +109,6 @@ func (s *Scanner) nextToken() Token {
 				return s.makeToken("left_paren", "(")
 			} else if c == ')' {
 				return s.makeToken("right_paren", ")")
-			} else if c == '[' {
-				return s.makeToken("left_bracket", "[")
-			} else if c == ']' {
-				return s.makeToken("right_bracket", "]")
-			} else if c == ':' {
-				return s.makeToken("assign", ":")
-			} else if c == ',' {
-				return s.makeToken("comma", ",")
 			} else if c == '+' {
 				d := s.Reader.NextChar()
 				if d == '=' {
@@ -138,7 +130,37 @@ func (s *Scanner) nextToken() Token {
 					return s.makeToken("minus", "-")
 				}
 			} else if c == '*' {
-				return s.makeToken("multiply", "*")
+				d := s.Reader.NextChar()
+				if d == '=' {
+					return s.makeToken("multiplyassign", "*=")
+				} else {
+					s.Reader.Retract()
+					return s.makeToken("multiply", "*")
+				}
+			} else if c == '=' {
+				d := s.Reader.NextChar()
+				if d == '=' {
+					return s.makeToken("equal", "==")
+				} else {
+					s.Reader.Retract()
+					return s.makeToken("assign", "=")
+				}
+			} else if c == '<' {
+				d := s.Reader.NextChar()
+				if d == '=' {
+					return s.makeToken("less_equal", "<=")
+				} else {
+					s.Reader.Retract()
+					return s.makeToken("less", "<")
+				}
+			} else if c == '>' {
+				d := s.Reader.NextChar()
+				if d == '=' {
+					return s.makeToken("greater_equal", ">=")
+				} else {
+					s.Reader.Retract()
+					return s.makeToken("greater", ">")
+				}
 			} else if c == '!' {
 				d := s.Reader.NextChar()
 				if d == '=' {
@@ -166,6 +188,23 @@ func (s *Scanner) nextToken() Token {
 			} else {
 				s.state = START_STATE
 				s.Reader.Retract()
+				if bufferStr == "int" {
+					return s.makeToken("int", bufferStr)
+				} else if bufferStr == "bool" {
+					return s.makeToken("bool", bufferStr)
+				} else if bufferStr == "true" {
+					return s.makeToken("true", bufferStr)
+				} else if bufferStr == "false" {
+					return s.makeToken("false", bufferStr)
+				} else if bufferStr == "if" {
+					return s.makeToken("if", bufferStr)
+				} else if bufferStr == "else" {
+					return s.makeToken("else", bufferStr)
+				} else if bufferStr == "while" {
+					return s.makeToken("while", bufferStr)
+				} else if bufferStr == "print" {
+					return s.makeToken("print", bufferStr)
+				}
 				return s.makeToken("identifier", bufferStr)
 			}
 		case NUMBER_STATE:
@@ -194,6 +233,9 @@ func (s *Scanner) nextToken() Token {
 				bufferStr = ""
 				d := s.Reader.NextChar()
 				for d != '*' {
+					if d == 0xFF {
+						return s.makeToken("error", "block comment not terminated")
+					}
 					bufferStr += string(d)
 					d = s.Reader.NextChar()
 				}
@@ -202,15 +244,17 @@ func (s *Scanner) nextToken() Token {
 					s.state = START_STATE
 					return s.makeToken("blockcomment", "/*"+bufferStr+"*/")
 				}
+				return s.makeToken("error", "block comment not terminated")
 			} else if c == '=' {
 				s.state = START_STATE
 				return s.makeToken("divideassign", "/=")
 			} else {
+				s.Reader.Retract()
 				s.state = START_STATE
 				return s.makeToken("divide", "/")
 			}
 		default:
-			return s.makeToken("error", "")
+			return s.makeToken("error", "unknown state")
 		}
 	}
 }
