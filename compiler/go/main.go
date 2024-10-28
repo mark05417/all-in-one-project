@@ -535,6 +535,7 @@ func (p *Parser) ParseExpression() Node {
 	return root
 }
 
+// Analyzer Class
 type Analyzer struct {
 	vars map[string]bool
 }
@@ -558,6 +559,23 @@ func (a *Analyzer) evaluateIDUsage(node Node) {
 		fmt.Println("Line " + strconv.Itoa(node.line) + ", Variable " + node.Value + " not declared.")
 		os.Exit(88)
 	}
+}
+
+// Compiler Class
+type Compiler struct {
+	node Node
+}
+
+func NewCompiler(node Node) Compiler {
+	return Compiler{
+		node: node,
+	}
+}
+
+func (c *Compiler) Compile() {
+	// generate machine code from AST
+
+	// print machine code
 }
 
 func main() {
