@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strconv"
 )
 
 // Reader Class
@@ -69,7 +70,6 @@ int b = 2;
 
 /* print a or b according to c */
 
-bool c = true;
 if (c){
     print a;
 } else {
@@ -230,11 +230,15 @@ func (s *Scanner) nextToken() Token {
 					}
 				}
 				s.state = START_STATE
+				s.currLine += 1
 				return s.makeToken("linecomment", "//"+bufferStr)
 			} else if c == '*' {
 				bufferStr = ""
 				d := s.Reader.NextChar()
 				for d != '*' {
+					if d == '\n' {
+						s.currLine += 1
+					}
 					if d == 0xFF {
 						return s.makeToken("error", "block comment not terminated")
 					}
@@ -265,12 +269,14 @@ func (s *Scanner) nextToken() Token {
 type Parser struct {
 	tokens       []Token
 	currentIndex int
+	analyzer     Analyzer
 }
 
-func NewParser(tokens []Token) *Parser {
+func NewParser(tokens []Token, Analyzer Analyzer) *Parser {
 	return &Parser{
 		tokens:       tokens,
 		currentIndex: 0,
+		analyzer:     Analyzer,
 	}
 }
 
@@ -449,7 +455,9 @@ func (p *Parser) ParseDeclaration() Node {
 	if !p.MatchToken(Token{Type: "identifier", Value: "identifier"}) {
 		os.Exit(88)
 	}
-	root.AddChild(NewNode("Identifier", p.PeekToken().Value, p.PeekToken().Line))
+	node := NewNode("Identifier", p.PeekToken().Value, p.PeekToken().Line)
+	root.AddChild(node)
+	p.analyzer.evaluateIDDeclaration(node)
 	p.ConsumeToken(Token{Type: "identifier", Value: "identifier"})
 
 	if !p.MatchToken(Token{Type: "assign", Value: "assign"}) {
@@ -480,7 +488,9 @@ func (p *Parser) ParseBlockComment() Node {
 
 func (p *Parser) ParseIncrementDecrement() Node {
 	root := NewNode("IncrementDecrement", "IncrementDecrement", p.PeekToken().Line)
-	root.AddChild(NewNode("identifier", p.PeekToken().Value, p.PeekToken().Line))
+	node := NewNode("identifier", p.PeekToken().Value, p.PeekToken().Line)
+	root.AddChild(node)
+	p.analyzer.evaluateIDUsage(node)
 	p.ConsumeToken(Token{Type: "identifier", Value: "identifier"})
 	if p.MatchToken(Token{Type: "increment", Value: "increment"}) {
 		root.AddChild(NewNode("increment", "increment", p.PeekToken().Line))
@@ -500,7 +510,9 @@ func (p *Parser) ParseExpression() Node {
 		root.AddChild(NewNode("integer", p.PeekToken().Value, p.PeekToken().Line))
 		p.ConsumeToken(Token{Type: "integer", Value: "integer"})
 	} else if p.MatchToken(Token{Type: "identifier", Value: "identifier"}) {
-		root.AddChild(NewNode("Identifier", p.PeekToken().Value, p.PeekToken().Line))
+		node := NewNode("identifier", p.PeekToken().Value, p.PeekToken().Line)
+		root.AddChild(node)
+		p.analyzer.evaluateIDUsage(node)
 		p.ConsumeToken(Token{Type: "identifier", Value: "identifier"})
 	} else if p.MatchToken(Token{Type: "true", Value: "true"}) {
 		root.AddChild(NewNode("True", p.PeekToken().Value, p.PeekToken().Line))
@@ -524,7 +536,28 @@ func (p *Parser) ParseExpression() Node {
 }
 
 type Analyzer struct {
-	vars []string
+	vars map[string]bool
+}
+
+func NewAnalyzer() Analyzer {
+	return Analyzer{
+		vars: make(map[string]bool),
+	}
+}
+
+func (a *Analyzer) evaluateIDDeclaration(node Node) {
+	if _, ok := a.vars[node.Value]; ok {
+		fmt.Println("Line " + strconv.Itoa(node.line) + ", Variable " + node.Value + " already declared.")
+		os.Exit(87)
+	}
+	a.vars[node.Value] = true
+}
+
+func (a *Analyzer) evaluateIDUsage(node Node) {
+	if _, ok := a.vars[node.Value]; !ok {
+		fmt.Println("Line " + strconv.Itoa(node.line) + ", Variable " + node.Value + " not declared.")
+		os.Exit(88)
+	}
 }
 
 func main() {
@@ -542,7 +575,7 @@ func main() {
 		}
 	}
 
-	parser := NewParser(Tokens)
+	parser := NewParser(Tokens, NewAnalyzer())
 	root := parser.Parse()
 	fmt.Println("====\n", root)
 }
