@@ -37,6 +37,7 @@ func (r *Reader) Retract() {
 type Token struct {
 	Type  string
 	Value string
+	Line  int
 }
 
 // Scanner Class
@@ -59,6 +60,7 @@ func NewScanner(reader *Reader) *Scanner {
 func (s *Scanner) makeToken(type_ string, value string) Token {
 	s.currentToken.Type = type_
 	s.currentToken.Value = value
+	s.currentToken.Line = s.currLine
 	return *s.currentToken
 }
 
@@ -302,12 +304,14 @@ type Node struct {
 	Type     string
 	Value    string
 	Children []Node
+	line     int
 }
 
-func NewNode(type_ string, value string) Node {
+func NewNode(type_ string, value string, line int) Node {
 	return Node{
 		Type:  type_,
 		Value: value,
+		line:  line,
 	}
 }
 
@@ -347,7 +351,7 @@ func (p *Parser) Parse() Node {
 }
 
 func (p *Parser) ParseProgram() Node {
-	root := NewNode("Program", "Program")
+	root := NewNode("Program", "Program", p.PeekToken().Line)
 
 	statements := p.ParseStatements()
 	root.AddChild(statements)
@@ -356,7 +360,7 @@ func (p *Parser) ParseProgram() Node {
 }
 
 func (p *Parser) ParseStatements() Node {
-	root := NewNode("Statements", "Statements")
+	root := NewNode("Statements", "Statements", p.PeekToken().Line)
 	for p.MatchToken(Token{Type: "eof", Value: "eof"}) == false {
 		statement := p.ParseStatement()
 		root.AddChild(statement)
@@ -365,7 +369,7 @@ func (p *Parser) ParseStatements() Node {
 }
 
 func (p *Parser) ParseStatement() Node {
-	root := NewNode("Statement", "Statement")
+	root := NewNode("Statement", "Statement", p.PeekToken().Line)
 	if p.MatchToken(Token{Type: "if", Value: "if"}) {
 		root.AddChild(p.ParseIfStatement())
 	} else if p.MatchToken(Token{Type: "while", Value: "while"}) {
@@ -389,7 +393,7 @@ func (p *Parser) ParseStatement() Node {
 	return root
 }
 func (p *Parser) ParseIfStatement() Node {
-	root := NewNode("IfStatement", "IfStatement")
+	root := NewNode("IfStatement", "IfStatement", p.PeekToken().Line)
 	p.ConsumeToken(Token{Type: "if", Value: "if"})
 	p.ConsumeToken(Token{Type: "left_paren", Value: "("})
 	root.AddChild(p.ParseExpression())
@@ -398,14 +402,14 @@ func (p *Parser) ParseIfStatement() Node {
 
 	if p.MatchToken(Token{Type: "else", Value: "else"}) {
 		p.ConsumeToken(Token{Type: "else", Value: "else"})
-		root.AddChild(NewNode("ElseStatement", "ElseStatement"))
+		root.AddChild(NewNode("ElseStatement", "ElseStatement", p.PeekToken().Line))
 		root.AddChild(p.ParseBlock())
 	}
 	return root
 }
 
 func (p *Parser) ParseWhileLoop() Node {
-	root := NewNode("WhileLoop", "WhileLoop")
+	root := NewNode("WhileLoop", "WhileLoop", p.PeekToken().Line)
 	p.ConsumeToken(Token{Type: "while", Value: "while"})
 	p.ConsumeToken(Token{Type: "left_paren", Value: "("})
 	root.AddChild(p.ParseExpression())
@@ -415,7 +419,7 @@ func (p *Parser) ParseWhileLoop() Node {
 }
 
 func (p *Parser) ParseBlock() Node {
-	root := NewNode("Block", "Block")
+	root := NewNode("Block", "Block", p.PeekToken().Line)
 	p.ConsumeToken(Token{Type: "left_brace", Value: "{"})
 	for !p.MatchToken(Token{Type: "right_brace", Value: "}"}) {
 		root.AddChild(p.ParseStatement())
@@ -425,7 +429,7 @@ func (p *Parser) ParseBlock() Node {
 }
 
 func (p *Parser) ParsePrintStatement() Node {
-	root := NewNode("PrintStatement", "PrintStatement")
+	root := NewNode("PrintStatement", "PrintStatement", p.PeekToken().Line)
 	p.ConsumeToken(Token{Type: "print", Value: "print"})
 	root.AddChild(p.ParseExpression())
 	p.ConsumeToken(Token{Type: "semicolon", Value: ";"})
@@ -433,25 +437,25 @@ func (p *Parser) ParsePrintStatement() Node {
 }
 
 func (p *Parser) ParseDeclaration() Node {
-	root := NewNode("Declaration", "Declaration")
+	root := NewNode("Declaration", "Declaration", p.PeekToken().Line)
 	if p.MatchToken(Token{Type: "int", Value: "int"}) {
-		root.AddChild(NewNode("Type", "int"))
+		root.AddChild(NewNode("Type", "int", p.PeekToken().Line))
 		p.ConsumeToken(Token{Type: "int", Value: "int"})
 	} else if p.MatchToken(Token{Type: "bool", Value: "bool"}) {
-		root.AddChild(NewNode("Type", "bool"))
+		root.AddChild(NewNode("Type", "bool", p.PeekToken().Line))
 		p.ConsumeToken(Token{Type: "bool", Value: "bool"})
 	}
 
 	if !p.MatchToken(Token{Type: "identifier", Value: "identifier"}) {
 		os.Exit(88)
 	}
-	root.AddChild(NewNode("Identifier", p.PeekToken().Value))
+	root.AddChild(NewNode("Identifier", p.PeekToken().Value, p.PeekToken().Line))
 	p.ConsumeToken(Token{Type: "identifier", Value: "identifier"})
 
 	if !p.MatchToken(Token{Type: "assign", Value: "assign"}) {
 		os.Exit(99)
 	}
-	root.AddChild(NewNode("Assign", "assign"))
+	root.AddChild(NewNode("Assign", "assign", p.PeekToken().Line))
 	p.ConsumeToken(Token{Type: "assign", Value: "assign"})
 
 	root.AddChild(p.ParseExpression())
@@ -461,28 +465,28 @@ func (p *Parser) ParseDeclaration() Node {
 }
 
 func (p *Parser) ParseLineComment() Node {
-	root := NewNode("LineComment", "LineComment")
-	root.AddChild(NewNode("linecomment", p.PeekToken().Value))
+	root := NewNode("LineComment", "LineComment", p.PeekToken().Line)
+	root.AddChild(NewNode("linecomment", p.PeekToken().Value, p.PeekToken().Line))
 	p.ConsumeToken(Token{Type: "linecomment", Value: "linecomment"})
 	return root
 }
 
 func (p *Parser) ParseBlockComment() Node {
-	root := NewNode("BlockComment", "BlockComment")
-	root.AddChild(NewNode("blockcomment", p.PeekToken().Value))
+	root := NewNode("BlockComment", "BlockComment", p.PeekToken().Line)
+	root.AddChild(NewNode("blockcomment", p.PeekToken().Value, p.PeekToken().Line))
 	p.ConsumeToken(Token{Type: "blockcomment", Value: "blockcomment"})
 	return root
 }
 
 func (p *Parser) ParseIncrementDecrement() Node {
-	root := NewNode("IncrementDecrement", "IncrementDecrement")
-	root.AddChild(NewNode("identifier", p.PeekToken().Value))
+	root := NewNode("IncrementDecrement", "IncrementDecrement", p.PeekToken().Line)
+	root.AddChild(NewNode("identifier", p.PeekToken().Value, p.PeekToken().Line))
 	p.ConsumeToken(Token{Type: "identifier", Value: "identifier"})
 	if p.MatchToken(Token{Type: "increment", Value: "increment"}) {
-		root.AddChild(NewNode("increment", "increment"))
+		root.AddChild(NewNode("increment", "increment", p.PeekToken().Line))
 		p.ConsumeToken(Token{Type: "increment", Value: "increment"})
 	} else if p.MatchToken(Token{Type: "decrement", Value: "decrement"}) {
-		root.AddChild(NewNode("decrement", "decrement"))
+		root.AddChild(NewNode("decrement", "decrement", p.PeekToken().Line))
 		p.ConsumeToken(Token{Type: "decrement", Value: "decrement"})
 	}
 	p.ConsumeToken(Token{Type: "semicolon", Value: ";"})
@@ -490,19 +494,19 @@ func (p *Parser) ParseIncrementDecrement() Node {
 }
 
 func (p *Parser) ParseExpression() Node {
-	root := NewNode("Expression", "Expression")
+	root := NewNode("Expression", "Expression", p.PeekToken().Line)
 
 	if p.MatchToken(Token{Type: "integer", Value: "integer"}) {
-		root.AddChild(NewNode("integer", p.PeekToken().Value))
+		root.AddChild(NewNode("integer", p.PeekToken().Value, p.PeekToken().Line))
 		p.ConsumeToken(Token{Type: "integer", Value: "integer"})
 	} else if p.MatchToken(Token{Type: "identifier", Value: "identifier"}) {
-		root.AddChild(NewNode("Identifier", p.PeekToken().Value))
+		root.AddChild(NewNode("Identifier", p.PeekToken().Value, p.PeekToken().Line))
 		p.ConsumeToken(Token{Type: "identifier", Value: "identifier"})
 	} else if p.MatchToken(Token{Type: "true", Value: "true"}) {
-		root.AddChild(NewNode("True", p.PeekToken().Value))
+		root.AddChild(NewNode("True", p.PeekToken().Value, p.PeekToken().Line))
 		p.ConsumeToken(Token{Type: "true", Value: "true"})
 	} else if p.MatchToken(Token{Type: "false", Value: "false"}) {
-		root.AddChild(NewNode("False", p.PeekToken().Value))
+		root.AddChild(NewNode("False", p.PeekToken().Value, p.PeekToken().Line))
 	}
 
 	if p.MatchToken(Token{Type: "less_equal", Value: "<="}) ||
@@ -512,12 +516,17 @@ func (p *Parser) ParseExpression() Node {
 		p.MatchToken(Token{Type: "equal", Value: "=="}) ||
 		p.MatchToken(Token{Type: "not_equal", Value: "!="}) {
 
-		root.AddChild(NewNode("Operator", p.PeekToken().Value))
+		root.AddChild(NewNode("Operator", p.PeekToken().Value, p.PeekToken().Line))
 		p.ConsumeToken(Token{Type: p.PeekToken().Type, Value: p.PeekToken().Value})
 		root.AddChild(p.ParseExpression())
 	}
 	return root
 }
+
+type Analyzer struct {
+	vars []string
+}
+
 func main() {
 	fmt.Println(dataString + "\n====")
 
