@@ -60,13 +60,15 @@ public:
 
 int main()
 {
-    base* pb1 = new base;
-    base* pb2 = (base*) new son1;
-    son1* ps = (son1*)pb1;
-    pb1->func1();
-    pb2->func1();
-    ps->func1();
-    delete pb1;
-    delete pb2;
-    return 0;
+    // E e;
+    B* _pB = new C;
+    // base* pb1 = new base;
+    // base* pb2 = (base*) new son1;
+    // son1* ps = (son1*)pb1;
+    // pb1->func1();
+    // pb2->func1();
+    // ps->func1();
+    // delete pb1;
+    // delete pb2;
+    // return 0;
 }
