@@ -1,0 +1,7 @@
+protoc --cpp_out=. student.proto
+protoc --python_out=. student.proto
+
+g++ -o main main.cc person.pb.cc -I/usr/local/include -L/usr/local/lib -lprotobuf -std=c++14 
+
+brew install protobuf
+brew install protobuf-c
